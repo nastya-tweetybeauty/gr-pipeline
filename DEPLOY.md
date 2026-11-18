@@ -12,11 +12,11 @@ The same code runs locally (Nastya's OAuth token + `.env`) and on Streamlit Clou
 3. **Streamlit Cloud** (share.streamlit.io, sign in with GitHub):
    - Create app → repo `tweety-beauty-ai/gr-pipeline`, branch `main`, main file `app.py`, Python 3.11;
    - Advanced settings → Secrets: paste `secrets.example.toml` filled in (Keepa key, Apify token, service-account JSON fields);
-   - Settings → Sharing: keep the app private and invite viewers by email (Matteo, Kristina, …).
+   - Sharing: public, like Vika's calculator (decision 2026-11-19) — anyone with the link can open the app and write decisions, so share the link only inside the team.
 
 ## Behaviour on the cloud
 
-- Writes are done by the service account; the *By* column takes the signed-in viewer's email name.
+- Writes are done by the service account. The app is public (no sign-in), so the *By* column is always "Nastya".
 - The daily Keepa source still runs on the first open of the day (and from the Apps Script morning trigger).
 - `sources/ss_catalog.py` (Catalog tab from SellerSnap exports on Drive) stays local-only for now.
 
