@@ -1,0 +1,52 @@
+old_reason,new_reason,reopen_trigger,note
+Approved,Approved,—,
+Approved: by request,Approved: by request,—,
+Approved: GRT,Approved,—,"GRT = старый тул, которого уже нет"
+Approved: for PP,(by decision),—,"причина убрана: yes→Approved, no→Other"
+Declined: gated,Gated,brand approved in matrix,
+Declined: gated for NL,Gated,brand approved in matrix,
+Declined: low roi,Low ROI,supplier price dropped / BB rose,
+Negative ROI,Low ROI,supplier price dropped / BB rose,
+Declined: low roi on similar product,Low ROI,supplier price dropped / BB rose,
+Declined: low sales,Low sales,Keepa sales grew,
+Declined: low velocity on similar product,Low sales,Keepa sales grew,
+No SR,Low sales,Keepa sales grew,No SR = нет sales rank
+no listing,No listing,listing appeared,
+no listing on wm,No listing,listing appeared,
+"Declined: no ASIN, low ROI",No listing,listing appeared,
+Declined: UK ASIN,Foreign-market ASIN,listing appeared on this market,
+Declined: US ASIN,Foreign-market ASIN,listing appeared on this market,
+Declined: Canada ASIN,Foreign-market ASIN,listing appeared on this market,
+Declined: AU ASIN,Foreign-market ASIN,listing appeared on this market,
+Declined: no suppliers,Few suppliers,new supplier appeared,
+Declined: only 1 supplier. can be discontinued,Few suppliers,new supplier appeared,
+Only 1 supplier (for NL),Few suppliers,new supplier appeared,
+new product_only 1 supplier,Few suppliers,new supplier appeared,
+Recheck: GS out,Recheck,by date (+7 days),причина больше не используется
+Declined: discontinued,Discontinued,back at a supplier,
+Discontinued or N/A,Discontinued,back at a supplier,
+Declined: discontinued/ not available,Discontinued,back at a supplier,
+Declined: problematic,Can't buy,new supplier appeared,= не купить
+Retailers issue,Can't buy,new supplier appeared,= не купить
+Declined: incl. NDG,NDG,— (manual),
+"Declined: no ASIN, NDG",NDG,— (manual),
+Declined: tester,Tester / travel size,never,
+Declined: travel size,Tester / travel size,never,
+Declined: old version,Old version,never,
+Declined: old version of package,Old version,never,
+Declined: gift set,Gift set not suitable,never,
+Declined: main product in gift set is cheap,Gift set not suitable,never,
+Declined: not a perfume,Not our category,never,
+not a perfume,Not our category,never,
+Declined: Sport,Not our category,never,
+Declined: Kitchen,Not our category,never,
+Declined: Amz is a seller,Amazon sells,Amazon left the listing,
+Declined: CE,Compliance,— (manual),
+Declined: ingredients issue,Compliance,— (manual),
+Declined: not proved it was imported,Compliance,— (manual),
+listing limitations,Compliance,— (manual),
+Declined: wrong EAN,Data issue (EAN),→ Cleanup tab,
+GS1 issue,JPG: catalog only,—,Jean Paul Gaultier (GS1): можем только добавлять в каталог; решение сохраняется
+in FB catalog,Already in catalog,—,
+Recheck later,Recheck,by date (+7 days),
+,Recheck,by date (+7 days),пустая причина

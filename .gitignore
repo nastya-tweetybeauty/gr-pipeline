@@ -1,0 +1,12 @@
+# never commit keys or tokens
+.env
+*.env
+*credentials*.json
+*token*.json
+.streamlit/secrets.toml
+__pycache__/
+# local-only files
+_backup_*/
+*.xlsx
+# local clone of Vika's repo; the pipeline uses engine/core.py
+vendor/
