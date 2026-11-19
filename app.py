@@ -251,7 +251,7 @@ STYLE = """
   /* горизонт со светом и отражённый полумесяц (static/eclipse.jpg) + лёгкое затемнение */
   background:
     linear-gradient(180deg, rgba(5,7,11,.30) 0%, rgba(5,7,11,.10) 45%, rgba(5,7,11,.30) 75%, rgba(5,7,11,.60) 100%),
-    url('/app/static/eclipse.jpg') center 42% / cover no-repeat,
+    url('app/static/eclipse.jpg') center 42% / cover no-repeat,
     linear-gradient(180deg, var(--dusk-hi), var(--ink));
   background-attachment: fixed; color: var(--text);
 }
