@@ -279,14 +279,16 @@ h4 { font-family: var(--sans) !important; font-weight: 500 !important; letter-sp
 .dot-red { color: var(--red); } .dot-peach { color: var(--peach); } .dot-mist { color: var(--mist-2); }
 
 /* карточки — туман: полупрозрачно, тонкая тёплая граница */
-[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"] {
+[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"],
+[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {   /* newer Streamlit (cloud) */
   background: rgba(10,14,22,.80);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(233,201,168,.16) !important; border-radius: 2px !important;
   box-shadow: 0 18px 40px rgba(0,0,0,.28);
   padding: 1.15rem 1.3rem 1.3rem !important; margin-bottom: .9rem;
 }
-[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]:hover { border-color: rgba(233,201,168,.28) !important; }
+[data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]:hover,
+[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"]:hover { border-color: rgba(233,201,168,.28) !important; }
 
 /* кнопки */
 .stButton > button, [data-testid="stPopover"] button {
