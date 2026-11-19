@@ -67,6 +67,10 @@ def credentials():
         from google.oauth2.service_account import Credentials as SA
         return SA.from_service_account_info(info, scopes=SCOPES)
     from google.oauth2.credentials import Credentials
+    if not LOCAL_TOKEN.exists():
+        raise RuntimeError("No Google credentials. On Streamlit Cloud add the [gcp_service_account] table to the app's "
+                           "Secrets (Manage app → Settings → Secrets) and reboot; on a Mac put the key in "
+                           "~/.config/gr-pipeline-sa.json.")
     tok = json.loads(LOCAL_TOKEN.read_text())
     return Credentials(token=tok.get("access_token"), refresh_token=tok.get("refresh_token"),
                        token_uri=tok.get("token_uri"), client_id=tok.get("client_id"),
