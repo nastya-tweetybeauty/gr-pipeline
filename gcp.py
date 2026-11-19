@@ -1,8 +1,8 @@
 """
 Credentials and Google Sheets access that work in both places the GR Pipeline runs:
 
-* Nastya's Mac: Google = her OAuth token (~/.config/sheets-write-credentials.json, same as
-  product-research/sheet_export.py); keys = environment or the .env files next to the code.
+* Nastya's Mac: Google = service account ~/.config/gr-pipeline-sa.json if present (same identity as the cloud),
+  else her OAuth token (~/.config/sheets-write-credentials.json); keys = environment or the .env files next to the code.
 * Streamlit Cloud: Google = service account from secrets ([gcp_service_account] table, passed on to
   the source scripts as env GCP_SA_JSON by app.py); keys = secrets (root-level secrets are env vars).
 
@@ -43,10 +43,15 @@ def secret(name, *aliases):
     return None
 
 
+LOCAL_SA = Path.home() / ".config" / "gr-pipeline-sa.json"   # Vika's SA for GR Pipeline (2026-11-19), never in git
+
+
 def _service_account_info():
     raw = os.environ.get("GCP_SA_JSON")
     if raw:
         return json.loads(raw)
+    if LOCAL_SA.exists():                 # on the Mac: same identity as the cloud app
+        return json.loads(LOCAL_SA.read_text())
     try:
         import streamlit as st
         if "gcp_service_account" in st.secrets:
