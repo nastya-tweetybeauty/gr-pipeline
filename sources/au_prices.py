@@ -51,8 +51,8 @@ def apify_run(urls, token):
     body = json.dumps({"categoryUrls": [{"url": u} for u in urls], "maxItemsPerStartUrl": 1,
                        "scrapeProductDetails": True, "maxProductVariantsAsSeparateResults": 0}).encode()
     req = urllib.request.Request(
-        f"https://api.apify.com/v2/acts/{ACTOR}/run-sync-get-dataset-items?token={token}&timeout=280",
-        data=body, headers={"Content-Type": "application/json"}, method="POST")
+        f"https://api.apify.com/v2/acts/{ACTOR}/run-sync-get-dataset-items?timeout=280",
+        data=body, headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"}, method="POST")
     with urllib.request.urlopen(req, timeout=320) as r:
         return json.loads(r.read())
 
