@@ -340,6 +340,8 @@ h4 { font-family: var(--mono) !important; font-weight: 500 !important; letter-sp
 [data-testid="stSidebar"] [role="radiogroup"] { gap: 0; counter-reset: sec; }
 [data-testid="stSidebar"] [role="radiogroup"] label { padding: .55rem .2rem .55rem .7rem; border-left: 1px solid var(--line); width: 100%; counter-increment: sec; }
 [data-testid="stSidebar"] [role="radiogroup"] label > div:first-child { display: none; }
+[data-testid="stSidebar"] [data-testid="stRadioOption"] > div > div:first-child:not([data-testid]) { display: none; }   /* newer Streamlit (cloud) */
+[data-testid="stToolbarActions"] { display: none; }   /* cloud: hide Fork / GitHub buttons */
 [data-testid="stSidebar"] [role="radiogroup"] label p { font-size: .9rem !important; color: var(--mist-2) !important; }
 [data-testid="stSidebar"] [role="radiogroup"] label p::before { content: counter(sec, decimal-leading-zero); font-family: var(--mono);
   font-size: .66rem; color: rgba(154,168,163,.6); margin-right: .7rem; letter-spacing: .05em; }
