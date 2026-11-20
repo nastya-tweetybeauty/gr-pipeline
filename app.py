@@ -18,12 +18,12 @@ import streamlit as st
 import gr_data as g  # noqa: E402
 
 
-st.set_page_config(page_title="GR Pipeline", page_icon="🌙", layout="wide", initial_sidebar_state="expanded")
+st.set_page_config(page_title="GR Pipeline", page_icon="◎", layout="wide", initial_sidebar_state="expanded")
 
 # Streamlit Cloud: the service account lives in secrets; hand it to the source scripts,
 # which run as subprocesses and cannot read st.secrets (see gcp.py). Locally there are no secrets.
 try:
-    if "gcp_service_account" in st.secrets and not os.environ.get("GCP_SA_JSON"):
+    if sys.platform != "darwin" and "gcp_service_account" in st.secrets and not os.environ.get("GCP_SA_JSON"):
         os.environ["GCP_SA_JSON"] = json.dumps(dict(st.secrets["gcp_service_account"]))
 except Exception:
     pass
@@ -239,127 +239,151 @@ def set_listing_status(d, status):
 # ───────────────────────── оформление: ночное небо, золото, рамка рукописи ─────────────────────────
 STYLE = """
 <style>
-/* Dusk: тихое сумеречное небо, туман, тонкий луч света; один красный акцент — зачёркивание */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+/* HUD over a dark Japanese garden: thin lines, mono labels, corner brackets, one mint accent */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root{
-  --ink:#07090D; --dusk:#0F1A2A; --dusk-hi:#1B2D45; --mist:#D5DADB; --mist-2:#B3BBC1; --text:#F1EFEA;
-  --peach:#E9C9A8; --peach-lo:rgba(233,201,168,.16); --red:#C2463C;
-  --serif:'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif; --sans:'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ink:#04070A; --panel:rgba(5,9,10,.84); --line:rgba(214,226,222,.14); --line-hi:rgba(214,226,222,.28);
+  --mist:#D3DCD8; --mist-2:#9AA8A3; --text:#F2F4F1;
+  --mint:#E9E0D2; --mint-lo:rgba(233,224,210,.10); --mint-mid:rgba(233,224,210,.34); --good:#A9C7A0; --red:#FF7A6B;
+  --display:'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --sans:'IBM Plex Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 .stApp{
-  /* горизонт со светом и отражённый полумесяц (static/eclipse.jpg) + лёгкое затемнение */
   background:
-    linear-gradient(180deg, rgba(5,7,11,.30) 0%, rgba(5,7,11,.10) 45%, rgba(5,7,11,.30) 75%, rgba(5,7,11,.60) 100%),
-    url('app/static/eclipse.jpg') center 42% / cover no-repeat,
-    linear-gradient(180deg, var(--dusk-hi), var(--ink));
+    radial-gradient(ellipse at 55% 40%, rgba(4,7,10,.05) 0%, rgba(4,7,10,.45) 65%, rgba(4,7,10,.85) 100%),
+    linear-gradient(180deg, rgba(4,7,10,.35) 0%, rgba(4,7,10,.05) 40%, rgba(4,7,10,.65) 100%),
+    url('app/static/koi.jpg') center 40% / cover no-repeat,
+    var(--ink);
   background-attachment: fixed; color: var(--text);
 }
+/* faint technical grid over the photo */
+.stApp::before{
+  content:""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: linear-gradient(rgba(214,226,222,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(214,226,222,.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
 html, body, .stApp, p, li, label, input, textarea, select, button, .stCaption { font-family: var(--sans) !important; }
-.stMarkdown p, .stMarkdown li { font-size: .98rem; line-height: 1.55; letter-spacing: .005em; }
-[data-testid="stCaptionContainer"], .stCaption { color: var(--mist-2) !important; }
-code { font-family: var(--mono) !important; background: rgba(201,207,203,.07) !important; color: var(--mist) !important;
-  font-size: .82em !important; border-radius: 2px; }
-a, a:visited { color: var(--peach) !important; text-decoration: none; border-bottom: 1px solid rgba(233,201,168,.3); }
-a:hover { border-bottom-color: var(--peach); }
+.stMarkdown p, .stMarkdown li { font-size: .97rem; line-height: 1.55; }
+[data-testid="stCaptionContainer"], .stCaption { color: var(--mist-2) !important; font-family: var(--mono) !important; font-size: .74rem !important; }
+code { font-family: var(--mono) !important; background: rgba(94,230,196,.07) !important; color: var(--mist) !important;
+  font-size: .82em !important; border-radius: 0; }
+a, a:visited { color: var(--mint) !important; text-decoration: none; border-bottom: 1px solid var(--mint-lo); }
+a:hover { border-bottom-color: var(--mint); }
 del, s { text-decoration-color: var(--red) !important; text-decoration-thickness: 1.5px; color: var(--mist-2); }
 [data-testid="stHeader"] { background: transparent; }
-.block-container { padding-top: 3.2rem; max-width: 1180px; }
+[data-testid="stDecoration"] { display: none; }
+.block-container { padding-top: 3rem; max-width: 1180px; position: relative; z-index: 1; }
 
-/* заголовки — курсивная антиква с точкой */
-h1, h2, h3 { font-family: var(--sans) !important; font-weight: 600 !important; color: var(--text) !important; letter-spacing: -.01em; }
-h4 { font-family: var(--sans) !important; font-weight: 500 !important; letter-spacing: .18em; font-size: .82rem !important;
+/* titles: wide display face; kicker in brackets */
+h1, h2, h3 { font-family: var(--sans) !important; font-weight: 600 !important; color: var(--text) !important; }
+h4 { font-family: var(--mono) !important; font-weight: 500 !important; letter-spacing: .14em; font-size: .76rem !important;
   text-transform: uppercase; color: var(--mist) !important; }
-.gr-title { font-family: var(--sans); font-weight: 600; font-size: 2.3rem; line-height: 1.1; color: var(--text);
-  letter-spacing: -.015em; margin: .2rem 0 .7rem; text-wrap: balance; text-shadow: 0 2px 18px rgba(0,0,0,.45); }
-.gr-title .dot { display: none; }
-.gr-sub { color: var(--mist); max-width: 66ch; font-size: .92rem; line-height: 1.6; margin-bottom: 1.6rem; text-shadow: 0 1px 10px rgba(0,0,0,.5);
-  padding-left: .9rem; border-left: 1px solid rgba(233,201,168,.35); }
-.gr-sub b { color: var(--mist); font-weight: 500; }
-.dot-red { color: var(--red); } .dot-peach { color: var(--peach); } .dot-mist { color: var(--mist-2); }
+.gr-kicker { font-family: var(--mono); font-size: .7rem; letter-spacing: .16em; color: var(--mist-2); text-transform: uppercase; margin-bottom: .55rem; }
+.gr-title { font-family: var(--display); font-weight: 500; font-size: 3.1rem; line-height: 1.02; color: var(--text);
+  letter-spacing: -.005em; margin: 0 0 .9rem; text-shadow: 0 2px 20px rgba(0,0,0,.6); }
+.gr-title .dot { color: var(--mint); }
+.gr-sub { color: var(--mist); max-width: 68ch; font-size: .9rem; line-height: 1.6; margin-bottom: 1.7rem;
+  padding: .1rem 0 .1rem .9rem; border-left: 1px solid var(--mint-mid); text-shadow: 0 1px 10px rgba(0,0,0,.6); }
+.gr-sub b { color: var(--text); font-weight: 500; }
+.dot-red { color: var(--red); } .dot-peach { color: #FFBD45; } .dot-mist { color: var(--mist-2); }
 
-/* карточки — туман: полупрозрачно, тонкая тёплая граница */
+/* cards: dark glass + mint corner brackets */
 [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"],
 [data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"] {   /* newer Streamlit (cloud) */
-  background: rgba(10,14,22,.80);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(233,201,168,.16) !important; border-radius: 2px !important;
-  box-shadow: 0 18px 40px rgba(0,0,0,.28);
-  padding: 1.15rem 1.3rem 1.3rem !important; margin-bottom: .9rem;
+  --c: rgba(233,224,210,.45); --s: 10px;
+  background:
+    linear-gradient(var(--c),var(--c)) top left / var(--s) 1px no-repeat,
+    linear-gradient(var(--c),var(--c)) top left / 1px var(--s) no-repeat,
+    linear-gradient(var(--c),var(--c)) top right / var(--s) 1px no-repeat,
+    linear-gradient(var(--c),var(--c)) top right / 1px var(--s) no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left / var(--s) 1px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom left / 1px var(--s) no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right / var(--s) 1px no-repeat,
+    linear-gradient(var(--c),var(--c)) bottom right / 1px var(--s) no-repeat,
+    var(--panel);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line) !important; border-radius: 0 !important;
+  box-shadow: 0 20px 44px rgba(0,0,0,.35);
+  padding: 1.15rem 1.3rem 1.3rem !important; margin-bottom: 1rem;
 }
 [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlockBorderWrapper"]:hover,
-[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"]:hover { border-color: rgba(233,201,168,.28) !important; }
+[data-testid="stLayoutWrapper"] > [data-testid="stVerticalBlock"]:hover { border-color: var(--line-hi) !important; }
 
-/* кнопки */
+/* buttons: mono, square, mint on hover */
 .stButton > button, [data-testid="stPopover"] button {
-  font-family: var(--sans) !important; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; font-size: .7rem !important;
-  border-radius: 1px !important; border: 1px solid rgba(201,207,203,.28) !important; background: transparent !important;
+  font-family: var(--mono) !important; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; font-size: .7rem !important;
+  border-radius: 0 !important; border: 1px solid var(--line-hi) !important; background: rgba(4,7,10,.4) !important;
   color: var(--mist) !important; white-space: nowrap;
 }
-.stButton > button p, [data-testid="stPopover"] button p { white-space: nowrap; font-size: .7rem !important; }
-.stButton > button:hover { border-color: var(--peach) !important; color: var(--peach) !important; }
+.stButton > button p, [data-testid="stPopover"] button p { white-space: nowrap; font-size: .7rem !important; font-family: var(--mono) !important; }
+.stButton > button:hover { border-color: var(--mint) !important; color: var(--mint) !important; }
 .stButton > button[kind="primary"], [data-testid="stBaseButton-primary"] {
-  background: var(--peach) !important; color: var(--ink) !important; border-color: var(--peach) !important;
+  background: rgba(233,224,210,.10) !important; color: var(--text) !important; border-color: var(--mint-mid) !important;
 }
-.stButton > button[kind="primary"]:hover { background: #F3DCC2 !important; color: var(--ink) !important; }
+.stButton > button[kind="primary"]:hover { background: rgba(233,224,210,.18) !important; color: var(--text) !important; border-color: var(--mint) !important; }
 .stButton > button:disabled { opacity: .3; }
-[data-baseweb="select"] > div { background: rgba(7,9,13,.45) !important; border-color: rgba(201,207,203,.18) !important; border-radius: 1px !important; }
+[data-baseweb="select"] > div, [data-baseweb="input"], .stTextInput input { background: rgba(4,7,10,.55) !important;
+  border-color: var(--line) !important; border-radius: 0 !important; }
+[data-baseweb="input"]:focus-within { border-color: var(--mint-mid) !important; }
 
-/* метрика — крупные курсивные цифры */
-[data-testid="stMetricValue"] { font-family: var(--sans) !important; font-weight: 600; font-size: 2rem !important; color: var(--text) !important; }
-[data-testid="stMetricLabel"] p { letter-spacing: .18em; text-transform: uppercase; font-size: .66rem !important; color: var(--mist-2) !important; }
+/* metric */
+[data-testid="stMetricValue"] { font-family: var(--display) !important; font-weight: 500; font-size: 2.4rem !important; color: var(--text) !important; }
+[data-testid="stMetricLabel"] p { font-family: var(--mono) !important; letter-spacing: .14em; text-transform: uppercase; font-size: .66rem !important; color: var(--mist-2) !important; }
 
-/* боковая панель — почти чёрная, по краю тонкий луч света */
-[data-testid="stSidebar"] { background: rgba(7,9,13,.93) !important; backdrop-filter: blur(12px); border-right: none; }
-[data-testid="stSidebar"]::after {
-  content: ""; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
-  background: linear-gradient(180deg, transparent 0%, rgba(233,201,168,.15) 20%, rgba(243,220,194,.85) 52%, rgba(233,201,168,.15) 82%, transparent 100%);
-  box-shadow: 0 0 18px 2px rgba(233,201,168,.18);
-}
-.gr-brand { font-family: var(--sans); font-weight: 600; font-size: 1rem; letter-spacing: .24em; text-transform: uppercase; color: var(--text); line-height: 1; }
-.gr-brand .mark { color: var(--peach); letter-spacing: .2em; font-weight: 400; margin-right: .5rem; }
-.gr-date { margin: .9rem 0 1.4rem; color: var(--mist); font-size: .85rem; }
-.gr-date b { font-size: 1.15rem; font-weight: 600; color: var(--text); }
-.gr-date span { color: var(--mist-2); font-size: .75rem; margin-left: .35rem; }
-[data-testid="stSidebar"] [role="radiogroup"] { gap: .1rem; }
-[data-testid="stSidebar"] [role="radiogroup"] label { padding: .55rem .2rem .55rem .8rem; border-left: 1px solid rgba(201,207,203,.12); width: 100%; }
-[data-testid="stSidebar"] [role="radiogroup"] label > div:first-child { display: none; }   /* без кружков радио */
-[data-testid="stSidebar"] [role="radiogroup"] label p { font-size: .9rem !important; color: var(--mist-2) !important; letter-spacing: .02em; }
+/* sidebar: near-black panel, numbered sections */
+[data-testid="stSidebar"] { background: rgba(4,7,10,.94) !important; backdrop-filter: blur(12px); border-right: 1px solid var(--line); }
+.gr-brand { font-family: var(--sans); font-weight: 500; font-size: .9rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text); line-height: 1; }
+.gr-brand .mark { color: var(--mint); margin-right: .45rem; }
+.gr-date { margin: .8rem 0 1.5rem; font-family: var(--mono); color: var(--mist-2); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; line-height: 1.6; }
+.gr-date b { color: var(--mint); font-weight: 500; }
+[data-testid="stSidebar"] [role="radiogroup"] { gap: 0; counter-reset: sec; }
+[data-testid="stSidebar"] [role="radiogroup"] label { padding: .55rem .2rem .55rem .7rem; border-left: 1px solid var(--line); width: 100%; counter-increment: sec; }
+[data-testid="stSidebar"] [role="radiogroup"] label > div:first-child { display: none; }
+[data-testid="stSidebar"] [role="radiogroup"] label p { font-size: .9rem !important; color: var(--mist-2) !important; }
+[data-testid="stSidebar"] [role="radiogroup"] label p::before { content: counter(sec, decimal-leading-zero); font-family: var(--mono);
+  font-size: .66rem; color: rgba(154,168,163,.6); margin-right: .7rem; letter-spacing: .05em; }
 [data-testid="stSidebar"] [role="radiogroup"] label:hover p { color: var(--mist) !important; }
-[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { border-left: 1px solid var(--peach); box-shadow: -6px 0 14px -8px rgba(233,201,168,.7); }
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) { border-left: 1px solid var(--mint); background: linear-gradient(90deg, var(--mint-lo), transparent 70%); }
 [data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p { color: var(--text) !important; }
-[data-testid="stSidebar"] hr { border-color: rgba(201,207,203,.1); }
-/* карточка товара: бренд → название → метки → ячейки «подпись / значение» */
-.gr-top { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; margin-bottom: .25rem; }
-.gr-brandline { font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--mist-2); font-weight: 500; }
-.gr-pill { font-size: .68rem; font-weight: 600; letter-spacing: .12em; color: var(--ink); background: var(--peach);
-  padding: .12rem .45rem; border-radius: 1px; }
-.gr-src { font-size: .68rem; letter-spacing: .06em; color: var(--mist-2); border: 1px solid rgba(201,207,203,.22);
-  padding: .08rem .4rem; border-radius: 1px; }
-.gr-pname { font-size: 1.12rem; font-weight: 600; color: var(--text); line-height: 1.35; margin: .1rem 0 .75rem; }
-.gr-stats { display: flex; flex-wrap: wrap; align-items: stretch; gap: .4rem 0;
-  background: rgba(201,207,203,.035); border: 1px solid rgba(201,207,203,.08); border-radius: 1px;
+[data-testid="stSidebar"] [role="radiogroup"] label:has(input:checked) p::before { color: var(--mint); }
+[data-testid="stSidebar"] hr { border-color: var(--line); }
+
+/* product card: brand → name → tags → label / value cells */
+.gr-top { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; margin-bottom: .3rem; }
+.gr-brandline { font-family: var(--mono); font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--mist-2); }
+.gr-pill { font-family: var(--mono); font-size: .66rem; font-weight: 500; letter-spacing: .1em; color: var(--mint); border: 1px solid var(--mint-mid); padding: .06rem .42rem; }
+.gr-src { font-family: var(--mono); font-size: .64rem; letter-spacing: .06em; color: var(--mist-2); border: 1px solid var(--line-hi); padding: .06rem .4rem; }
+.gr-src::before { content: "[ "; } .gr-src::after { content: " ]"; }
+.gr-pname { font-size: 1.12rem; font-weight: 600; color: var(--text); line-height: 1.35; margin: .15rem 0 .8rem; }
+.gr-stats { display: flex; flex-wrap: wrap; align-items: stretch; gap: .45rem 0;
+  background: rgba(214,226,222,.03); border: 1px solid rgba(214,226,222,.08); border-top: 1px solid var(--mint-lo);
   padding: .7rem .9rem .75rem; margin: .1rem 0 .35rem; }
-.gr-stat { display: flex; flex-direction: column; gap: .15rem; padding: 0 .85rem 0 0; margin-right: .85rem;
-  border-right: 1px solid rgba(201,207,203,.10); min-width: 0; }
+.gr-stat { display: flex; flex-direction: column; gap: .2rem; padding: 0 .85rem 0 0; margin-right: .85rem; border-right: 1px solid rgba(214,226,222,.09); min-width: 0; }
 .gr-stat:last-of-type { border-right: none; }
-.gr-stat span { font-size: .62rem; letter-spacing: .18em; text-transform: uppercase; color: var(--mist-2); }
+.gr-stat span { font-family: var(--mono); font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: var(--mist-2); }
 .gr-stat b { font-size: 1.02rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.gr-stat b.money { color: var(--peach); }
-.gr-stat b.bad { color: #E07A6E; }
-.gr-stat b.good { color: #9FD3A8; }
-.gr-stat b.mono { font-family: var(--mono); font-size: .86rem; font-weight: 400; color: var(--mist); padding-top: .12rem; }
-.gr-stat b.none { color: rgba(179,187,193,.5); }
-a.gr-keepa { align-self: center; margin-left: auto; font-size: .66rem; letter-spacing: .16em; text-transform: uppercase;
-  border: 1px solid rgba(233,201,168,.45) !important; padding: .35rem .6rem; color: var(--peach) !important;
-  text-decoration: none !important; }
-a.gr-keepa:hover { background: rgba(233,201,168,.08); }
+.gr-stat b.money { color: var(--text); font-weight: 600; }
+.gr-stat b.bad { color: var(--red); }
+.gr-stat b.good { color: var(--good); }
+.gr-stat b.mono { font-family: var(--mono); font-size: .84rem; font-weight: 400; color: var(--mist); padding-top: .14rem; }
+.gr-stat b.none { color: rgba(154,168,163,.45); }
+a.gr-keepa { align-self: center; margin-left: auto; font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase;
+  border: 1px solid var(--mint-mid) !important; padding: .32rem .6rem; color: var(--mint) !important; text-decoration: none !important; }
+a.gr-keepa:hover { background: var(--mint-lo); }
 .gr-mini { padding: .45rem .55rem .5rem; gap: .35rem 0; }
 .gr-mini .gr-stat { padding-right: .5rem; margin-right: .5rem; }
 .gr-mini .gr-stat b { font-size: .88rem; }
-.gr-mini .gr-stat span { font-size: .56rem; letter-spacing: .14em; }
-.gr-note { margin-top: .7rem; font-size: .85rem; color: var(--peach); }
-.gr-note::before { content: "—  "; }
+.gr-mini .gr-stat span { font-size: .54rem; letter-spacing: .1em; }
+.gr-note { margin-top: .7rem; font-family: var(--mono); font-size: .78rem; color: var(--mint); }
+.gr-note::before { content: "›  "; }
+/* radios / tabs / expanders in mint */
+[role="radiogroup"] input:checked + div, [data-baseweb="radio"] div[aria-checked="true"] { border-color: var(--mint) !important; }
+[data-testid="stExpander"] details { border-radius: 0 !important; border-color: var(--line) !important; background: rgba(4,7,10,.4); }
+/* st.info / success / warning: dark glass with a thin coloured edge instead of Streamlit blue */
+[data-testid="stAlert"], [data-testid="stAlertContainer"] { background: rgba(5,9,10,.82) !important; backdrop-filter: blur(10px);
+  border: 1px solid var(--line) !important; border-left: 2px solid var(--mint) !important; border-radius: 0 !important; color: var(--mist) !important; }
+[data-testid="stAlert"] p, [data-testid="stAlertContainer"] p { color: var(--mist) !important; font-size: .9rem; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 """
@@ -407,7 +431,9 @@ def inbox_card_html(r):
 
 
 def page_title(text, sub=""):
-    st.markdown(f'<div class="gr-title">{text}<span class="dot">.</span></div>'
+    names = [v[0] for v in PAGES.values()]
+    num = f"{names.index(text) + 1:02d} / " if text in names else ""
+    st.markdown(f'<div class="gr-kicker">[ {num}{text} ]</div><div class="gr-title">{text}<span class="dot">.</span></div>'
                 + (f'<div class="gr-sub">{sub}</div>' if sub else ""), unsafe_allow_html=True)
 
 
@@ -534,8 +560,8 @@ PAGES = {
 }
 with st.sidebar:
     t = dt.date.today()
-    st.markdown(f'<div class="gr-brand"><span class="mark">( )</span>GR pipeline</div>'
-                f'<div class="gr-date"><b>{t:%d}</b> · {t:%m} <span>({t:%A}, ’{t:%y})</span></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="gr-brand"><span class="mark">◎</span>GR pipeline</div>'
+                f'<div class="gr-date">Local date <b>{t:%d.%m.%y}</b><br>{t:%A}</div>', unsafe_allow_html=True)
     page = st.radio("Section", list(PAGES), key="page", label_visibility="collapsed",
                     format_func=lambda k: f"{PAGES[k][0]}  ·  {PAGES[k][1]}" if PAGES[k][1] != "" else PAGES[k][0])
     st.divider()
